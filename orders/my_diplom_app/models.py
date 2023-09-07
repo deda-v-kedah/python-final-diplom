@@ -33,6 +33,10 @@ class Parameter(models.Model):
     name = models.CharField(max_length=40, verbose_name='Название')
 
 
+    class Meta:
+        unique_together = ['name',]
+
+
 
 class ProductParameter(models.Model):
     product_info = models.ForeignKey(ProductInfo, verbose_name='Информация о продукте',

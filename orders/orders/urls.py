@@ -16,6 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from my_diplom_app.views import UpdateView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('update/', UpdateView.as_view())
 ]
