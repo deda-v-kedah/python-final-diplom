@@ -1,10 +1,17 @@
 from django.db import models
+# from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 # Create your models here.
 class Shop(models.Model):
     name = models.CharField(max_length=50)
     url = models.URLField(verbose_name='Ссылка', null=True, blank=True)
     filename = models.CharField(max_length=50)
+
+    class Meta:
+        unique_together = ['name',]
+
 
 
 class Category(models.Model):
@@ -36,6 +43,9 @@ class Parameter(models.Model):
     class Meta:
         unique_together = ['name',]
 
+    def __str__(self):
+        return self.name
+
 
 
 class ProductParameter(models.Model):
@@ -47,8 +57,12 @@ class ProductParameter(models.Model):
     value = models.CharField(verbose_name='Значение', max_length=100)
 
 
-class User(models.Model):
-    name = models.CharField(max_length=50, verbose_name="Пользователь")
+class User(AbstractUser):
+    company = models.CharField(verbose_name='Компания', max_length=40, blank=True)
+    position = models.CharField(verbose_name='Должность', max_length=40, blank=True)
+    type = models.CharField(verbose_name='Тип пользователя',  max_length=8, default='buyer')
+
+
 
 
 class Order(models.Model):
