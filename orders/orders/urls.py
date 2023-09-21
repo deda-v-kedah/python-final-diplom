@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include, re_path
 
-from my_diplom_app.views import UpdateView, GoodsView, ProductView, BasketView
+from my_diplom_app.views import UpdateView, GoodsView, ProductView, BasketView, ConfirmationView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,6 +24,8 @@ urlpatterns = [
     path('goods/', GoodsView.as_view() ),
     path('product/<int:id>', ProductView.as_view()),
     path('my_basket/', BasketView.as_view()),
+    path('confirmation/', ConfirmationView.as_view()),
+
 
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),

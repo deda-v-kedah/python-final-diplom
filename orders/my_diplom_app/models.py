@@ -4,13 +4,24 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 # Create your models here.
+
+
+class User(AbstractUser):
+    company = models.CharField(verbose_name='Компания', max_length=40, blank=True)
+    position = models.CharField(verbose_name='Должность', max_length=40, blank=True)
+    type = models.CharField(verbose_name='Тип пользователя',  max_length=8, default='buyer')
+
+
+
+
 class Shop(models.Model):
     name = models.CharField(max_length=50)
     url = models.URLField(verbose_name='Ссылка', null=True, blank=True)
     filename = models.CharField(max_length=50)
-
+    creater_email = models.EmailField(max_length=254, verbose_name='Почта постовщика')
     class Meta:
         unique_together = ['name',]
+
 
 
 
@@ -23,6 +34,8 @@ class Product(models.Model):
     category = models.ForeignKey(Category, verbose_name='Категория', related_name='products', blank=True,
                                  on_delete=models.CASCADE)
     name = models.CharField(max_length=80, verbose_name='Название')
+    
+
 
 
 class ProductInfo(models.Model):
@@ -57,13 +70,6 @@ class ProductParameter(models.Model):
     value = models.CharField(verbose_name='Значение', max_length=100)
 
 
-class User(AbstractUser):
-    company = models.CharField(verbose_name='Компания', max_length=40, blank=True)
-    position = models.CharField(verbose_name='Должность', max_length=40, blank=True)
-    type = models.CharField(verbose_name='Тип пользователя',  max_length=8, default='buyer')
-
-
-
 
 class Order(models.Model):
     user = models.ForeignKey(User, related_name='orders', on_delete=models.CASCADE)
@@ -84,6 +90,6 @@ class OrderItem(models.Model):
 
 
 class Contact(models.Model):
-    type = models.CharField(max_length=50, verbose_name="Тип")
+    type = models.CharField(max_length=50, verbose_name="Тип", default='address')
     user = models.ForeignKey(User, related_name='contacts', on_delete=models.CASCADE)
     value = models.CharField(verbose_name='Значение', max_length=100)

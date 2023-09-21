@@ -7,9 +7,74 @@ from django.core.exceptions import ObjectDoesNotExist
 
 import yaml
 
-from my_diplom_app.models import Shop, Product, Category, ProductInfo, Parameter, ProductParameter, Order, OrderItem
-from my_diplom_app.serializers import ProductSerializer, OrderSerializer, OrderItemSerializer
+from my_diplom_app.models import Shop, Product, Category, ProductInfo, Parameter, ProductParameter, Order, OrderItem, Contact
+from my_diplom_app.serializers import CategorySerializer, ProductSerializer, OrderSerializer
 
+from django.core.mail import send_mail, BadHeaderError
+from django.conf import settings
+
+
+
+def send(subject, message, recipients):
+    from_email=settings.EMAIL_HOST_USER
+    if subject and message and from_email:
+        try:
+            send_mail(subject, message, from_email, recipients)
+        except BadHeaderError:
+            print('Invalid header found.')
+        print('email sent')
+    else:
+        print('Make sure all fields are entered and valid.')
+
+
+
+class ConfirmationView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        if 'value' in request.data and request.data['value'] != '':
+
+            quaryset = Order.objects.get(user_id = request.user.id)
+            serializer = OrderSerializer(quaryset)
+
+            list_shops = []
+            text = ''
+            text_dict = {}
+
+            for i in serializer.data['ordered_items']:
+                if not i['shop']['id'] in text_dict.keys():
+                    text = f"Здравствуйте, {i['shop']['creater_email']} в вашем магазине {i['shop']['name']} был осуществлен заказ:\n\n\n"
+               
+                list_shops.append(i['shop']['creater_email'])
+
+                text += f"наименование: {i['product']['name']}\n"
+                text += f"инв. №(id): {i['product']['id']}\n"
+                text += f"стоимость еденицы: {i['product']['product_infos'][0]['price_rrc']}\n"
+                text += f"количество: {i['quantity']} шт\n\n"
+            
+                text_dict[i['shop']['id']] = text
+
+
+
+                unique_shops = list(set(list_shops))
+
+
+
+            if 'type' in request.data and request.data['type'] != 'address':
+                contact, _ = Contact.objects.get_or_create(user_id=request.user.id, type=request.data['type'], value=request.data['value'])
+                for k,v in text_dict.items():
+                    send('Накладная', text_dict[k], unique_shops)              
+                send('Ваш заказ одробен', 'Ваш заказ одробен бла бла бла', [request.user.email])
+                return Response(serializer.data)
+            else:
+                contact, _ = Contact.objects.get_or_create(user_id=request.user.id, value=request.data['value'])
+                for k,v in text_dict.items():
+                    send('Накладная', text_dict[k], unique_shops)
+                send('Ваш заказ одробен', 'Ваш заказ одробен бла бла бла', [request.user.email])
+                return Response(serializer.data)
+            # return JsonResponse({'Status': True, 'Code': 201})
+        else:
+            return Response({'Status': False, 'Error': 400, 'описание': 'Переданы не все параметры'})
+ 
 
 
 class UpdateView(APIView):
@@ -20,10 +85,11 @@ class UpdateView(APIView):
 
         if request.user.type == 'seller':
 
+
             with open('../data/shop1.yaml') as file:
                 data = yaml.safe_load(file)
 
-                shop, _ = Shop.objects.get_or_create(name=data['shop'])
+                shop, _ = Shop.objects.get_or_create(name=data['shop'], creater_email=request.user.email)
 
                 for category in data['categories']:
                     category_object, _ = Category.objects.get_or_create(id=category['id'], name=category['name'])
@@ -95,21 +161,35 @@ class BasketView(APIView):
                 info = ProductInfo.objects.get(product_id = request.data['product'])
 
 
-                if (info.quantity >= int(request.data['quantity'])):
+                test = Category.objects.filter(id = product.category_id)               
+                serializer = CategorySerializer(test, many=True)
 
-                    order, _ = Order.objects.get_or_create(user_id=request.user.id, status='not_confirmed')
-                
-                    OrderItem.objects.filter(order=order, product=product, shop=shop).update(quantity=request.data['quantity'])
-
-                    order_item, _ = OrderItem.objects.get_or_create(order=order, product=product, shop=shop, quantity=request.data['quantity'])
-
-
-                    return Response({'Status': True, 'Code': 201, 'id': order_item.id})
+               
+               
+                if int(serializer.data[0]['shops'][0]['id']) == int(request.data['shop']):
                 
 
+                    if (info.quantity >= int(request.data['quantity'])):
+
+                        order, _ = Order.objects.get_or_create(user_id=request.user.id, status='not_confirmed')
+                    
+                        OrderItem.objects.filter(order=order, product=product, shop=shop).update(quantity=request.data['quantity'])
+
+                        order_item, _ = OrderItem.objects.get_or_create(order=order, product=product, shop=shop, quantity=request.data['quantity'])
+
+
+                        return Response({'Status': True, 'Code': 201, 'id': order_item.id})
+                    
+
+                    else:
+                        return Response({'Status': False, 'Error': 400, 'описание': 'Количество товаров в карзине выше, чем имеется'})
+                
                 else:
-                    return Response({'Status': False, 'Error': 400, 'описание': 'Количество товаров в карзине выше, чем имеется'})
-                
+                    return Response({'Status': False, 'Error': 400, 'описание': 'Данный товар принадлежит другому магазину'})
+
+
+
+
             except Shop.DoesNotExist:
                 return Response({'Status': False, 'Error': 400, 'описание': 'Скорее всего не верный id магазинa'})
             except Product.DoesNotExist:

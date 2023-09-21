@@ -1,0 +1,58 @@
+shop: Триал
+categories:
+  - id: 120
+    name: Мтб
+  - id: 10
+    name: Шоссер
+  - id: 100
+    name: БМХ
+
+goods:
+  - id: 4216292
+    category: 120
+    model: оутлип
+    name: оутлип елит 29 (золотистый)
+    price: 55000
+    price_rrc: 59990
+    quantity: 14
+    parameters:
+      "Рама": 21
+      "Колеса": 29
+      "материал": ал
+      "Цвет": золотистый
+  - id: 4216313
+    category: 120
+    model: оутлип
+    name: оутлип про 29 (красный)
+    price: 65000
+    price_rrc: 69990
+    quantity: 9
+    parameters:
+      "Рама": 21
+      "Колеса": 29
+      "материал": ал
+      "Цвет": красный
+  - id: 4216226
+    category: 120
+    model: GT
+    name: GT аваланч(2021) 27.5 (синий/красный)
+    price: 80000
+    price_rrc: 89990
+    quantity: 5
+    parameters:
+      "Рама": 21
+      "Колеса": 27.5
+      "материал": ал
+      "Цвет": черный
+  - id: 4672670
+    category: 120
+    model: GT
+    name: GT аваланч(2023) 29 (черный)
+    price: 120000
+    price_rrc: 132990
+    quantity: 7
+    parameters:
+      "Рама": 21
+      "Колеса": 29
+      "материал": ал
+      "Цвет": черный
