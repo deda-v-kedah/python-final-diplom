@@ -160,3 +160,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+
+# Celery settings
+CELERY_BROKER_URL = "redis://0.0.0.0:6379"
+CELERY_RESULT_BACKEND = "redis://0.0.0.0:6379"

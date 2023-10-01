@@ -10,21 +10,7 @@ import yaml
 from my_diplom_app.models import Shop, Product, Category, ProductInfo, Parameter, ProductParameter, Order, OrderItem, Contact
 from my_diplom_app.serializers import CategorySerializer, ProductSerializer, OrderSerializer
 
-from django.core.mail import send_mail, BadHeaderError
-from django.conf import settings
-
-
-
-def send(subject, message, recipients):
-    from_email=settings.EMAIL_HOST_USER
-    if subject and message and from_email:
-        try:
-            send_mail(subject, message, from_email, recipients)
-        except BadHeaderError:
-            print('Invalid header found.')
-        print('email sent')
-    else:
-        print('Make sure all fields are entered and valid.')
+from my_diplom_app.tasks import send
 
 
 
@@ -62,14 +48,14 @@ class ConfirmationView(APIView):
             if 'type' in request.data and request.data['type'] != 'address':
                 contact, _ = Contact.objects.get_or_create(user_id=request.user.id, type=request.data['type'], value=request.data['value'])
                 for k,v in text_dict.items():
-                    send('Накладная', text_dict[k], unique_shops)              
-                send('Ваш заказ одробен', 'Ваш заказ одробен бла бла бла', [request.user.email])
+                    send.delay('Накладная', text_dict[k], unique_shops)              
+                send.delay('Ваш заказ одробен', 'Ваш заказ одробен бла бла бла', [request.user.email])
                 return Response(serializer.data)
             else:
                 contact, _ = Contact.objects.get_or_create(user_id=request.user.id, value=request.data['value'])
                 for k,v in text_dict.items():
-                    send('Накладная', text_dict[k], unique_shops)
-                send('Ваш заказ одробен', 'Ваш заказ одробен бла бла бла', [request.user.email])
+                    send.delay('Накладная', text_dict[k], unique_shops)
+                send.delay('Ваш заказ одробен', 'Ваш заказ одробен бла бла бла', [request.user.email])
                 return Response(serializer.data)
             # return JsonResponse({'Status': True, 'Code': 201})
         else:
