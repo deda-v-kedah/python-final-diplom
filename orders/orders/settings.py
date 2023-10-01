@@ -44,6 +44,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     'rest_framework.authtoken',
+
+    'oauth2_provider',
+    'social_django',
+    'rest_framework_social_oauth2',
+
     'my_diplom_app',
 ]
 
@@ -97,6 +102,8 @@ DATABASES = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        'rest_framework_social_oauth2.authentication.SocialAuthentication',
     ),
 }
 
@@ -114,7 +121,9 @@ DJOSER = {
     'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': '#/activate/{uid}/{token}',
     'SEND_ACTIVATE_EMAIL': False,
-    'SERIALIZERS': {},
+    'SERIALIZERS': {"user_create": "my_diplom_app.serializers.UserCreateSerializer",
+                    "current_user": "my_diplom_app.serializers.UserSerializer",
+                    },
 }
 
 
@@ -161,7 +170,15 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+SOCIAL_AUTH_VK_OAUTH2_KEY = '51509828'
+SOCIAL_AUTH_VK_OAUTH2_SECRET = 'Bgif8BiEn8xsIdE1Rg3Q'
 
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.vk.VKOAuth2',
+    # 'rest_framework_social_oauth2.backends.DjangoOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 # Celery settings
 CELERY_BROKER_URL = "redis://0.0.0.0:6379"
