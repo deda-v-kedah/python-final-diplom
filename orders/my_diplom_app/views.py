@@ -6,12 +6,18 @@ from rest_framework import permissions
 from django.core.exceptions import ObjectDoesNotExist
 
 import yaml
+import requests
+import json
 
 from my_diplom_app.models import Shop, Product, Category, ProductInfo, Parameter, ProductParameter, Order, OrderItem, Contact
 from my_diplom_app.serializers import CategorySerializer, ProductSerializer, OrderSerializer
 
 from my_diplom_app.tasks import send
 
+
+
+def auth(request):
+    return render(request, 'oauth.html')
 
 
 class ConfirmationView(APIView):

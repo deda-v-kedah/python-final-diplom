@@ -42,15 +42,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'djoser',
     'rest_framework.authtoken',
 
-    'oauth2_provider',
+    'djoser',
     'social_django',
-    'rest_framework_social_oauth2',
 
     'my_diplom_app',
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -67,7 +67,7 @@ ROOT_URLCONF = 'orders.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -75,10 +75,14 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                
             ],
         },
     },
 ]
+
+
 
 WSGI_APPLICATION = 'orders.wsgi.application'
 
@@ -97,13 +101,46 @@ DATABASES = {
     }
 }
 
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
+
+
+AUTH_USER_MODEL = 'orders.User'
+
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.vk.VKOAuth2',      
+    'social_core.backends.github.GithubOAuth2',
+  
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+
+
+
+
+
+SOCIAL_AUTH_VK_OAUTH2_KEY = '51774944'
+SOCIAL_AUTH_VK_OAUTH2_SECRET = '9oovOUb8xf8Jafcorfpl'
+
+
+SOCIAL_AUTH_GITHUB_KEY = 'a7614b728cdd8004aeb3'
+SOCIAL_AUTH_GITHUB_SECRET = '97f5cd2db7a8bb085d77b6899059023880893fab'
+
+
+
+SOCIAL_AUTH_VK_OAUTH2_SCOPE = ['email']
+
+SOCIAL_AUTH_GITHUB_SCOPE = ['user:email']
+
+
+LOGIN_REDIRECT_URL = '/admin/'
+
+
 
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
-        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        'rest_framework_social_oauth2.authentication.SocialAuthentication',
     ),
 }
 
@@ -170,16 +207,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-SOCIAL_AUTH_VK_OAUTH2_KEY = '51509828'
-SOCIAL_AUTH_VK_OAUTH2_SECRET = 'Bgif8BiEn8xsIdE1Rg3Q'
 
 
-AUTHENTICATION_BACKENDS = (
-    'social_core.backends.vk.VKOAuth2',
-    # 'rest_framework_social_oauth2.backends.DjangoOAuth2',
-    'django.contrib.auth.backends.ModelBackend',
-)
 
 # Celery settings
 CELERY_BROKER_URL = "redis://0.0.0.0:6379"
 CELERY_RESULT_BACKEND = "redis://0.0.0.0:6379"
+
+
