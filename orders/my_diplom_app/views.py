@@ -51,21 +51,26 @@ class ConfirmationView(APIView):
 
 
 
-            if 'type' in request.data and request.data['type'] != 'address':
+            if 'type' in request.data and request.data['type'] == 'phone':
                 contact, _ = Contact.objects.get_or_create(user_id=request.user.id, type=request.data['type'], value=request.data['value'])
                 for k,v in text_dict.items():
-                    send.delay('Накладная', text_dict[k], unique_shops)              
-                send.delay('Ваш заказ одробен', 'Ваш заказ одробен бла бла бла', [request.user.email])
-                return Response(serializer.data)
-            else:
+                    send.delay('Позвонить', f'позвонить для уточнения адресса по номеру {request.data["value"]}, детали заказа {serializer.data}', unique_shops)              
+                send.delay('Ваш заказ в стадии уточнение', f'Вы не укозали аддрес наш оператор свяжется с вами по номеру {request.data["value"]}', [request.user.email])
+                return Response({'status': 'specify',
+                                 'num': request.data["value"],
+                                 'data': serializer.data})
+            elif 'type' in request.data and request.data['type'] == 'address':
                 contact, _ = Contact.objects.get_or_create(user_id=request.user.id, value=request.data['value'])
                 for k,v in text_dict.items():
                     send.delay('Накладная', text_dict[k], unique_shops)
                 send.delay('Ваш заказ одробен', 'Ваш заказ одробен бла бла бла', [request.user.email])
-                return Response(serializer.data)
-            # return JsonResponse({'Status': True, 'Code': 201})
+                return Response({'status': True,
+                                 'data': serializer.data})
+            else:
+                return Response({'status': False,
+                                 'data':'number or address required'})
         else:
-            return Response({'Status': False, 'Error': 400, 'описание': 'Переданы не все параметры'})
+            return Response({'status': False,  'description': 'not all parameters were passed'})
  
 
 
@@ -105,9 +110,10 @@ class UpdateView(APIView):
                                                         value=value)
 
 
-            return JsonResponse({'Status': True, 'Code': 201})
+            return Response({'status': True})
         else:
-            return JsonResponse({'Status': False, 'error': 403, 'описание:': 'недостаточно прав'})
+            return Response({'status': False,
+                             'description': 'insufficient rights'})
      
 
 
@@ -145,63 +151,53 @@ class BasketView(APIView):
         
         if 'product' in request.data and 'shop' in request.data and 'quantity' in request.data:
             
-
             try:
 
                 product = Product.objects.get(id=request.data['product'])
                 shop = Shop.objects.get(id=request.data['shop'])
                 info = ProductInfo.objects.get(product_id = request.data['product'])
 
+                
+        
+                if (info.quantity >= int(request.data['quantity'])):
 
-                test = Category.objects.filter(id = product.category_id)               
-                serializer = CategorySerializer(test, many=True)
+                    order, _ = Order.objects.get_or_create(user_id=request.user.id, status='not_confirmed')
+                
+                    OrderItem.objects.filter(order=order, product=product, shop=shop).update(quantity=request.data['quantity'])
 
-               
-               
-                if int(serializer.data[0]['shops'][0]['id']) == int(request.data['shop']):
+                    order_item, _ = OrderItem.objects.get_or_create(order=order, product=product, shop=shop, quantity=request.data['quantity'])
+
+
+                    return Response({'status': True, 'id': order_item.id})
                 
 
-                    if (info.quantity >= int(request.data['quantity'])):
-
-                        order, _ = Order.objects.get_or_create(user_id=request.user.id, status='not_confirmed')
-                    
-                        OrderItem.objects.filter(order=order, product=product, shop=shop).update(quantity=request.data['quantity'])
-
-                        order_item, _ = OrderItem.objects.get_or_create(order=order, product=product, shop=shop, quantity=request.data['quantity'])
-
-
-                        return Response({'Status': True, 'Code': 201, 'id': order_item.id})
-                    
-
-                    else:
-                        return Response({'Status': False, 'Error': 400, 'описание': 'Количество товаров в карзине выше, чем имеется'})
-                
                 else:
-                    return Response({'Status': False, 'Error': 400, 'описание': 'Данный товар принадлежит другому магазину'})
-
-
+                    return Response({'status': False, 'description': 'The number of items in the cart is higher than available'})
+            
+            
 
 
             except Shop.DoesNotExist:
-                return Response({'Status': False, 'Error': 400, 'описание': 'Скорее всего не верный id магазинa'})
+                return Response({'status': False,  'description': 'Most likely the store ID is not correct'})
             except Product.DoesNotExist:
-                return Response({'Status': False, 'Error': 400, 'описание': 'Скорее всего не верный id товара'})
+                return Response({'status': False,  'description': 'Most likely the product ID is incorrect'})
                 
         
-        
-        
-        
         else:
-            return Response({'Status': False, 'Error': 400, 'описание': 'Переданы не все параметры'})
+            return Response({'status': False,  'description': 'Not all parameters were passed'})
             
 
         
     def delete(self, request, *args, **kwargs):
         if 'id' in request.data:
-            OrderItem.objects.filter(id=request.data['id']).delete()
-            return Response({'Status': True, 'Code': 410, 'описание': 'успешно удалено'})
+            if OrderItem.objects.filter(id=request.data['id']).exists():
+                OrderItem.objects.filter(id=request.data['id']).delete()
+                return Response({'status': True, })
+            else:
+                return Response({'status': False,  'description': 'id not found'})
+            
         else:
-            return Response({'Status': False, 'Code': 400, 'описание': 'Переданы не все параметры'})
+            return Response({'status': False,  'description': 'not all parameters were passed'})
 
             
 
