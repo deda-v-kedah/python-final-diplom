@@ -1,117 +1,12 @@
 
 # API для закупок
 
-## Запросы
+## Итоговая работа курса в [Нетологии](https://netology.ru/ "Нетология — образовательная платформа №1") 
 
-1 **Регестрация**\
-POST запрос
-* url: http://127.0.0.1:8000/auth/users/
-* Headers: -
-* Body
-  - username *
-  - password *
-  - email *
-  - first_name
-  - last_name *
-  - company
-  - position
-  - type (seller/buyer(по умолчанию)) *
+Документацию можно изучить:
+* [Здесь](../orders/MyProjectAPI.yaml "yaml file drf-spectacular") 
+* Или [Здесь](http://127.0.0.1:8000/api/schema/redoc/ "schema doc") 
 
-ответ: статус код
+Протестировать можно: [Здесь](http://127.0.0.1:8000/api/schema/swagger-ui/ "Schema swagger-ui/") 
 
-на введенный email улетит сообщение с информацией о регестрации
-
-2 **Вход**\
-POST запрос
-* url: http://127.0.0.1:8000/auth/token/login/
-* Headers: -
-* Body
-  - username *
-  - password *
-
-ответ: myToken
-  
-
-3 **Профиль**\
-Get запрос
-* url: http://127.0.0.1:8000/auth/users/me/
-* Headers: {Authorization: Token myToken}
-* Body -
-
-ответ: json о авторезовонном юзире
-  
-
-
-4 **Выгрузка товаров**\
-POST запрос
-* url: http://127.0.0.1:8000/update/
-* Headers: {Authorization: Token myToken}
-* Body -
-
-ответ: статус код
-  
-
-5 **Список товаров**\
-Get запрос
-* url: http://127.0.0.1:8000/goods/
-* Headers: -
-* Body -
-
-ответ: json c товарами
-  
-
-
-6 **Карточка товара**\
-Get запрос
-* url: http://127.0.0.1:8000/product/8-например
-* Headers: -
-* Body -
-
-ответ: json с товаром с id=8
-  
-
-7 **Карзина**\
-Get запрос
-* url: http://127.0.0.1:8000/my_basket/
-* Headers: {Authorization: Token myToken}
-* Body -
-
-ответ: json с товарами в карзине текущего юзера
-
-POST запрос
-* url: http://127.0.0.1:8000/my_basket/
-* Headers: {Authorization: Token myToken}
-* Body 
-  - product
-  - shop
-  - quantity
-
-ответ: статус код
-
-Если product и shop не изменились, а quantity новое то препишется только количество
-
-DELETE запрос
-* url: http://127.0.0.1:8000/my_basket/
-* Headers: {Authorization: Token myToken}
-* Body 
-  - id
-
-ответ: статус код
-
-Удалит товар из корзины с выбранным id
-  
-
-
-
-8 **Подтверждение заказа**\
-POST запрос
-* url: http://127.0.0.1:8000/confirmation/
-* Headers: {Authorization: Token myToken}
-* Body 
-  -  type (num/address(по умолчанию))
-  -  value
-
-ответ: карзина товаров которую подтвердии
-
-на email продавцов чьи товары были в карзине улетит сообщение, а так же покупателю на его email
-  
+Файл Postman: [Collection](../orders/Collection.postman_collection.json)

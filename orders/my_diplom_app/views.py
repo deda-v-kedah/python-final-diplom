@@ -21,6 +21,8 @@ def auth(request):
 
 
 class ConfirmationView(APIView):
+    """Confirmation of an order"""
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         if 'value' in request.data and request.data['value'] != '':
@@ -75,7 +77,7 @@ class ConfirmationView(APIView):
 
 
 class UpdateView(APIView):
-
+    """Update products"""
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
@@ -119,6 +121,7 @@ class UpdateView(APIView):
 
 
 class GoodsView(APIView):
+    """Product withdrawal"""
     def get(self, request, *args, **kwargs):
 
         quaryset = Product.objects.all()
@@ -129,6 +132,7 @@ class GoodsView(APIView):
    
 
 class ProductView(APIView):
+    """Card Product"""
     def get(self, request, id, *args, **kwargs):
 
         quareset = Product.objects.filter(id=id)
@@ -138,6 +142,8 @@ class ProductView(APIView):
     
 
 class BasketView(APIView):
+    """Cart of goods"""
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **qwargs):
 

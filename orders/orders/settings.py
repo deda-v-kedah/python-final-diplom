@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
     'djoser',
     'social_django',
+    'drf_spectacular',
 
     'my_diplom_app',
 ]
@@ -142,6 +143,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 
@@ -208,6 +210,13 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'My Project API',
+    'DESCRIPTION': 'My final work in netology',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}
 
 
 # Celery settings
